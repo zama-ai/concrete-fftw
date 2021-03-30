@@ -6,16 +6,21 @@
 use crate::array::{alignment_of, AlignedAllocable, AlignedVec, Alignment};
 use crate::error::*;
 use crate::ffi::*;
-use crate::types::{c32, c64, Flag, R2RKind, Sign};
+use crate::types::{Complex32, Complex64, Complex128, Flag, R2RKind, Sign};
+use f128::f128;
 
 use std::marker::PhantomData;
 
-pub type C2CPlan64 = Plan<c64, c64, Plan64>;
-pub type C2CPlan32 = Plan<c32, c32, Plan32>;
-pub type R2CPlan64 = Plan<f64, c64, Plan64>;
-pub type R2CPlan32 = Plan<f32, c32, Plan32>;
-pub type C2RPlan64 = Plan<c64, f64, Plan64>;
-pub type C2RPlan32 = Plan<c32, f32, Plan32>;
+pub type C2CPlan128 = Plan<Complex128, Complex128, Plan128>;
+pub type C2CPlan64 = Plan<Complex64, Complex64, Plan64>;
+pub type C2CPlan32 = Plan<Complex32, Complex32, Plan32>;
+pub type R2CPlan128 = Plan<f128, Complex128, Plan128>;
+pub type R2CPlan64 = Plan<f64, Complex64, Plan64>;
+pub type R2CPlan32 = Plan<f32, Complex32, Plan32>;
+pub type C2RPlan128 = Plan<Complex128, f128, Plan128>;
+pub type C2RPlan64 = Plan<Complex64, f64, Plan64>;
+pub type C2RPlan32 = Plan<Complex32, f32, Plan32>;
+pub type R2RPlan128 = Plan<f128, f128, Plan128>;
 pub type R2RPlan64 = Plan<f64, f64, Plan64>;
 pub type R2RPlan32 = Plan<f32, f32, Plan32>;
 
@@ -74,6 +79,8 @@ pub trait PlanSpec: Clone + Copy {
 pub type Plan64 = fftw_plan;
 /// Marker for 32-bit floating point FFT
 pub type Plan32 = fftwf_plan;
+/// Marker for 128-bit floating point FFT
+pub type Plan128 = fftwl_plan;
 
 /// Trait for the plan of Complex-to-Complex transformation
 pub trait C2CPlan: Sized {
@@ -189,11 +196,12 @@ macro_rules! impl_c2c {
                 sign: Sign,
                 flag: Flag,
             ) -> Result<Self> {
+
                 let plan = excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
-                    in_.as_mut_ptr(),
-                    out.as_mut_ptr(),
+                    in_.as_mut_ptr() as *mut _,
+                    out.as_mut_ptr() as *mut _,
                     sign as i32, flag.bits())
                 }
                 .validate()?;
@@ -206,15 +214,16 @@ macro_rules! impl_c2c {
             }
             fn c2c(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Complex]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr(), out.as_mut_ptr()) };
+                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
                 Ok(())
             }
         }
     };
 } // impl_c2c!
 
-impl_c2c!(c64, Plan64; fftw_plan_dft, fftw_execute_dft);
-impl_c2c!(c32, Plan32; fftwf_plan_dft, fftwf_execute_dft);
+impl_c2c!(Complex128, Plan128; fftwl_plan_dft, fftwl_execute_dft);
+impl_c2c!(Complex64, Plan64; fftw_plan_dft, fftw_execute_dft);
+impl_c2c!(Complex32, Plan32; fftwf_plan_dft, fftwf_execute_dft);
 
 macro_rules! impl_r2c {
     ($R:ty, $C:ty, $Plan:ty; $plan:ident, $exec:ident) => {
@@ -230,8 +239,8 @@ macro_rules! impl_r2c {
                 let plan = excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
-                    in_.as_mut_ptr(),
-                    out.as_mut_ptr(),
+                    in_.as_mut_ptr() as *mut _,
+                    out.as_mut_ptr() as *mut _,
                     flag.bits())
                 }
                 .validate()?;
@@ -244,15 +253,16 @@ macro_rules! impl_r2c {
             }
             fn r2c(&mut self, in_: &mut [Self::Real], out: &mut [Self::Complex]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr(), out.as_mut_ptr()) };
+                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
                 Ok(())
             }
         }
     };
 } // impl_r2c!
 
-impl_r2c!(f64, c64, Plan64; fftw_plan_dft_r2c, fftw_execute_dft_r2c);
-impl_r2c!(f32, c32, Plan32; fftwf_plan_dft_r2c, fftwf_execute_dft_r2c);
+impl_r2c!(f128, Complex128, Plan128; fftwl_plan_dft_r2c, fftwl_execute_dft_r2c);
+impl_r2c!(f64, Complex64, Plan64; fftw_plan_dft_r2c, fftw_execute_dft_r2c);
+impl_r2c!(f32, Complex64, Plan32; fftwf_plan_dft_r2c, fftwf_execute_dft_r2c);
 
 macro_rules! impl_c2r {
     ($R:ty, $C:ty, $Plan:ty; $plan:ident, $exec:ident) => {
@@ -268,8 +278,8 @@ macro_rules! impl_c2r {
                 let plan = excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
-                    in_.as_mut_ptr(),
-                    out.as_mut_ptr(),
+                    in_.as_mut_ptr() as *mut _,
+                    out.as_mut_ptr() as *mut _,
                     flag.bits())
                 }
                 .validate()?;
@@ -282,15 +292,16 @@ macro_rules! impl_c2r {
             }
             fn c2r(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Real]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr(), out.as_mut_ptr()) };
+                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
                 Ok(())
             }
         }
     };
 } // impl_c2r!
 
-impl_c2r!(f64, c64, Plan64; fftw_plan_dft_c2r, fftw_execute_dft_c2r);
-impl_c2r!(f32, c32, Plan32; fftwf_plan_dft_c2r, fftwf_execute_dft_c2r);
+impl_c2r!(f128, Complex128, Plan128; fftwl_plan_dft_c2r, fftwl_execute_dft_c2r);
+impl_c2r!(f64, Complex64, Plan64; fftw_plan_dft_c2r, fftw_execute_dft_c2r);
+impl_c2r!(f32, Complex32, Plan32; fftwf_plan_dft_c2r, fftwf_execute_dft_c2r);
 
 macro_rules! impl_r2r {
     ($R:ty, $Plan:ty; $plan:ident, $exec:ident) => {
@@ -306,8 +317,8 @@ macro_rules! impl_r2r {
                 let plan = excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
-                    in_.as_mut_ptr(),
-                    out.as_mut_ptr(),
+                    in_.as_mut_ptr() as *mut _,
+                    out.as_mut_ptr() as *mut _,
                     &kind as *const _, flag.bits())
                 }
                 .validate()?;
@@ -320,13 +331,14 @@ macro_rules! impl_r2r {
             }
             fn r2r(&mut self, in_: &mut [Self::Real], out: &mut [Self::Real]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr(), out.as_mut_ptr()) };
+                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
                 Ok(())
             }
         }
     };
 } // impl_r2r!
 
+impl_r2r!(f128, Plan128; fftwl_plan_r2r, fftwl_execute_r2r);
 impl_r2r!(f64, Plan64; fftw_plan_r2r, fftw_execute_r2r);
 impl_r2r!(f32, Plan32; fftwf_plan_r2r, fftwf_execute_r2r);
 
@@ -350,6 +362,7 @@ macro_rules! impl_plan_spec {
     };
 } // impl_plan_spec!
 
+impl_plan_spec!(Plan128; fftwl_destroy_plan, fftwl_print_plan);
 impl_plan_spec!(Plan64; fftw_destroy_plan, fftw_print_plan);
 impl_plan_spec!(Plan32; fftwf_destroy_plan, fftwf_print_plan);
 

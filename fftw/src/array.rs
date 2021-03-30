@@ -7,6 +7,7 @@ use num_traits::Zero;
 use std::ops::{Deref, DerefMut};
 use std::os::raw::c_void;
 use std::slice::{from_raw_parts, from_raw_parts_mut};
+use f128::f128;
 
 /// A RAII-wrapper of `fftw_alloc` and `fftw_free` with the [SIMD alignment].
 ///
@@ -25,25 +26,37 @@ pub trait AlignedAllocable: Zero + Clone + Copy + Sized {
 
 impl AlignedAllocable for f64 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftw_alloc_real(n)
+        ffi::fftw_alloc_real(n as u64)
     }
 }
 
 impl AlignedAllocable for f32 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftwf_alloc_real(n)
+        ffi::fftwf_alloc_real(n as u64)
     }
 }
 
-impl AlignedAllocable for c64 {
+impl AlignedAllocable for f128{
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftw_alloc_complex(n)
+        ffi::fftwl_alloc_real(n as u64) as *mut f128
     }
 }
 
-impl AlignedAllocable for c32 {
+impl AlignedAllocable for Complex64 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftwf_alloc_complex(n)
+        ffi::fftw_alloc_complex(n as u64) as *mut Complex64
+    }
+}
+
+impl AlignedAllocable for Complex32 {
+    unsafe fn alloc(n: usize) -> *mut Self {
+        ffi::fftwf_alloc_complex(n as u64) as *mut Complex32
+    }
+}
+
+impl AlignedAllocable for Complex128 {
+    unsafe fn alloc(n: usize) -> *mut Self {
+        ffi::fftwl_alloc_complex(n as u64) as *mut Complex128
     }
 }
 

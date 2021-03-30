@@ -1,24 +1,39 @@
-Changelog for fftw-sys crate
+Changelog for fftw-src crate
 =============================
 
 Unreleased
 ----------
 
-0.6.0 - 2019-06-24
+0.3.3 - 2020-09-05
+-------------------
+
+### Change
+
+- Fix `fs_extra` crate version to `~1.2.0`
+
+0.3.2 - 2020-06-24
+-------------------
+
+### Add
+
+- Bundle generated source code of FFTW-3.3.8 https://github.com/rust-math/fftw/pull/88
+  - build in OUT_DIR https://github.com/rust-math/fftw/pull/93
+
+### Change
+- failure -> anyhow https://github.com/rust-math/fftw/pull/91
+
+### Delete
+- Drop reqwest, md5 crates https://github.com/rust-math/fftw/pull/91
+
+0.3.1 - 2020-05-25
+-------------------
+
+### Change
+- Fix current path for macOS https://github.com/rust-math/fftw/pull/75
+- Switch to Rust 2018 https://github.com/rust-math/fftw/pull/69
+
+0.3.0 - 2019-05-02
 ===================
 
-### Deleted
-- `intel-mkl` feature is not supported for macOS https://github.com/rust-math/fftw/pull/95
-
-### Changed
-- intel-mkl-src 0.6.0+mkl2020.1 https://github.com/rust-math/fftw/pull/95
-- num-complex 0.3.0 https://github.com/rust-math/fftw/pull/95
-- Regenerate binding based on FFTW 3.3.8 https://github.com/rust-math/fftw/pull/94
-
-0.5.0 - 2019-05-02
-===================
-
-### Changed
-- intel-mkl-src 0.4.0
-- fftw-src 0.3.0
-- Change to dual License GPLv2 or MIT + Intel Simplified Software License (for intel-mkl feature)
+### Add
+- Support Windows https://github.com/rust-math/fftw/pull/66

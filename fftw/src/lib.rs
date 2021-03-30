@@ -46,6 +46,7 @@ extern crate fftw_sys as ffi;
 
 use lazy_static::lazy_static;
 use std::sync::Mutex;
+use f128::f128;
 
 lazy_static! {
     /// Mutex for FFTW call.
@@ -61,7 +62,7 @@ macro_rules! excall {
         let _lock = $crate::FFTW_MUTEX.lock().expect("Cannot get lock");
         unsafe { $call }
     }};
-} // excall!
+}
 
 pub mod array;
 pub mod error;
