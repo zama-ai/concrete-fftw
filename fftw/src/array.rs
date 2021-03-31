@@ -42,21 +42,21 @@ impl AlignedAllocable for f128{
     }
 }
 
-impl AlignedAllocable for Complex64 {
+impl AlignedAllocable for c64 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftw_alloc_complex(n as u64) as *mut Complex64
+        ffi::fftw_alloc_complex(n as u64) as *mut _
     }
 }
 
-impl AlignedAllocable for Complex32 {
+impl AlignedAllocable for c32 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftwf_alloc_complex(n as u64) as *mut Complex32
+        ffi::fftwf_alloc_complex(n as u64) as *mut c32
     }
 }
 
-impl AlignedAllocable for Complex128 {
+impl AlignedAllocable for c128 {
     unsafe fn alloc(n: usize) -> *mut Self {
-        ffi::fftwl_alloc_complex(n as u64) as *mut Complex128
+        ffi::fftwl_alloc_complex(n as u64) as *mut _
     }
 }
 

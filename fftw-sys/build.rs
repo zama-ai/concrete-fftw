@@ -1,9 +1,9 @@
+use bindgen::EnumVariation;
 use std::env::var;
 use std::fs::canonicalize;
 use std::io::{copy, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use bindgen::EnumVariation;
 
 fn run(command: &mut Command) {
     println!("Running: {:?}", command);
@@ -45,16 +45,18 @@ fn main() {
             .arg(format!("--prefix={}", out_dir.display()))
             .current_dir(&src_dir),
     );
-    run(
-        Command::new("make")
+    run(Command::new("make")
         .arg(format!("-j{}", var("NUM_JOBS").unwrap()))
-        .current_dir(&src_dir)
-    );
-    run(
-        Command::new("make").arg("install").current_dir(&src_dir)
-    );
+        .current_dir(&src_dir));
+    run(Command::new("make").arg("install").current_dir(&src_dir));
     let bindings = bindgen::Builder::default()
-        .header(out_dir.join("include/fftw3.h").into_os_string().into_string().unwrap())
+        .header(
+            out_dir
+                .join("include/fftw3.h")
+                .into_os_string()
+                .into_string()
+                .unwrap(),
+        )
         .use_core()
         .derive_default(true)
         .derive_eq(true)
@@ -63,12 +65,14 @@ fn main() {
         .whitelist_type("^fftw.*")
         .whitelist_var("^FFTW.*")
         .whitelist_function("^fftw.*")
-        .blacklist_type("fftwl_complex")
+        .blacklist_type("fftw.*_complex")
         //.blacklist_type("FILE")
         //.blacklist_function("fftwl_.*")
         //.blacklist_type("_.*")
         //.blacklist_type("fftw_.*_complex")
-        .default_enum_style(EnumVariation::Rust{non_exhaustive:false})
+        .default_enum_style(EnumVariation::Rust {
+            non_exhaustive: false,
+        })
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .generate()
         .expect("Unable to generate bindings");

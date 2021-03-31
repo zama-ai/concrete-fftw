@@ -6,20 +6,20 @@
 use crate::array::{alignment_of, AlignedAllocable, AlignedVec, Alignment};
 use crate::error::*;
 use crate::ffi::*;
-use crate::types::{Complex32, Complex64, Complex128, Flag, R2RKind, Sign};
+use crate::types::{c32, c64, c128, Flag, R2RKind, Sign};
 use f128::f128;
 
 use std::marker::PhantomData;
 
-pub type C2CPlan128 = Plan<Complex128, Complex128, Plan128>;
-pub type C2CPlan64 = Plan<Complex64, Complex64, Plan64>;
-pub type C2CPlan32 = Plan<Complex32, Complex32, Plan32>;
-pub type R2CPlan128 = Plan<f128, Complex128, Plan128>;
-pub type R2CPlan64 = Plan<f64, Complex64, Plan64>;
-pub type R2CPlan32 = Plan<f32, Complex32, Plan32>;
-pub type C2RPlan128 = Plan<Complex128, f128, Plan128>;
-pub type C2RPlan64 = Plan<Complex64, f64, Plan64>;
-pub type C2RPlan32 = Plan<Complex32, f32, Plan32>;
+pub type C2CPlan128 = Plan<c128, c128, Plan128>;
+pub type C2CPlan64 = Plan<c64, c64, Plan64>;
+pub type C2CPlan32 = Plan<c32, c32, Plan32>;
+pub type R2CPlan128 = Plan<f128, c128, Plan128>;
+pub type R2CPlan64 = Plan<f64, c64, Plan64>;
+pub type R2CPlan32 = Plan<f32, c32, Plan32>;
+pub type C2RPlan128 = Plan<c128, f128, Plan128>;
+pub type C2RPlan64 = Plan<c64, f64, Plan64>;
+pub type C2RPlan32 = Plan<c32, f32, Plan32>;
 pub type R2RPlan128 = Plan<f128, f128, Plan128>;
 pub type R2RPlan64 = Plan<f64, f64, Plan64>;
 pub type R2RPlan32 = Plan<f32, f32, Plan32>;
@@ -221,9 +221,9 @@ macro_rules! impl_c2c {
     };
 } // impl_c2c!
 
-impl_c2c!(Complex128, Plan128; fftwl_plan_dft, fftwl_execute_dft);
-impl_c2c!(Complex64, Plan64; fftw_plan_dft, fftw_execute_dft);
-impl_c2c!(Complex32, Plan32; fftwf_plan_dft, fftwf_execute_dft);
+impl_c2c!(c128, Plan128; fftwl_plan_dft, fftwl_execute_dft);
+impl_c2c!(c64, Plan64; fftw_plan_dft, fftw_execute_dft);
+impl_c2c!(c32, Plan32; fftwf_plan_dft, fftwf_execute_dft);
 
 macro_rules! impl_r2c {
     ($R:ty, $C:ty, $Plan:ty; $plan:ident, $exec:ident) => {
@@ -260,9 +260,9 @@ macro_rules! impl_r2c {
     };
 } // impl_r2c!
 
-impl_r2c!(f128, Complex128, Plan128; fftwl_plan_dft_r2c, fftwl_execute_dft_r2c);
-impl_r2c!(f64, Complex64, Plan64; fftw_plan_dft_r2c, fftw_execute_dft_r2c);
-impl_r2c!(f32, Complex64, Plan32; fftwf_plan_dft_r2c, fftwf_execute_dft_r2c);
+impl_r2c!(f128, c128, Plan128; fftwl_plan_dft_r2c, fftwl_execute_dft_r2c);
+impl_r2c!(f64, c64, Plan64; fftw_plan_dft_r2c, fftw_execute_dft_r2c);
+impl_r2c!(f32, c32, Plan32; fftwf_plan_dft_r2c, fftwf_execute_dft_r2c);
 
 macro_rules! impl_c2r {
     ($R:ty, $C:ty, $Plan:ty; $plan:ident, $exec:ident) => {
@@ -299,9 +299,9 @@ macro_rules! impl_c2r {
     };
 } // impl_c2r!
 
-impl_c2r!(f128, Complex128, Plan128; fftwl_plan_dft_c2r, fftwl_execute_dft_c2r);
-impl_c2r!(f64, Complex64, Plan64; fftw_plan_dft_c2r, fftw_execute_dft_c2r);
-impl_c2r!(f32, Complex32, Plan32; fftwf_plan_dft_c2r, fftwf_execute_dft_c2r);
+impl_c2r!(f128, c128, Plan128; fftwl_plan_dft_c2r, fftwl_execute_dft_c2r);
+impl_c2r!(f64, c64, Plan64; fftw_plan_dft_c2r, fftw_execute_dft_c2r);
+impl_c2r!(f32, c32, Plan32; fftwf_plan_dft_c2r, fftwf_execute_dft_c2r);
 
 macro_rules! impl_r2r {
     ($R:ty, $Plan:ty; $plan:ident, $exec:ident) => {
