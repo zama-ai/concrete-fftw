@@ -79,6 +79,7 @@ fn main() {
     bindings
         .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+    println!("cargo:rustc-flags=-l quadmath");
     println!("cargo:rustc-link-search={}", out_dir.join("lib").display());
     println!("cargo:rustc-link-lib=static=fftw3q");
 }

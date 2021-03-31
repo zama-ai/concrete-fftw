@@ -4,6 +4,12 @@ use f128::f128;
 #[link(name = "fftw3")]
 extern "C" {}
 
+#[link(name = "fftw3f")]
+extern "C" {}
+
+#[link(name = "fftw3l")]
+extern "C" {}
+
 pub type fftw_complex = Complex<f64>;
 pub type fftwf_complex = Complex<f32>;
 pub type fftwl_complex = Complex<f128>;

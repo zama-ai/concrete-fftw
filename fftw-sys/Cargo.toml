@@ -10,7 +10,6 @@ keywords = ["fftw"]
 license = "GPL-2.0-or-later"
 
 build = "build.rs"
-links = "fftw3"
 
 [build-dependencies]
 fs_extra = "~1.2.0"
