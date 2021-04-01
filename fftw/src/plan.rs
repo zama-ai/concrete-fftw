@@ -10,6 +10,7 @@ use crate::types::{c32, c64, c128, Flag, R2RKind, Sign};
 use f128::f128;
 
 use std::marker::PhantomData;
+use std::sync::{RwLock, Arc};
 
 pub type C2CPlan128 = Plan<c128, c128, Plan128>;
 pub type C2CPlan64 = Plan<c64, c64, Plan64>;
@@ -76,11 +77,35 @@ pub trait PlanSpec: Clone + Copy {
 }
 
 /// Marker for 64-bit floating point FFT
-pub type Plan64 = fftw_plan;
+#[derive(Copy, Clone)]
+pub struct Plan64(fftw_plan);
+impl From<fftw_plan> for Plan64{
+    fn from(val: fftw_plan) -> Self {
+        Plan64(val)
+    }
+}
+unsafe impl Send for Plan64 {}
+unsafe impl Sync for Plan64 {}
 /// Marker for 32-bit floating point FFT
-pub type Plan32 = fftwf_plan;
+#[derive(Copy, Clone)]
+pub struct Plan32(fftwf_plan);
+impl From<fftwf_plan> for Plan32{
+    fn from(val: fftwf_plan) -> Self {
+        Plan32(val)
+    }
+}
+unsafe impl Send for Plan32 {}
+unsafe impl Sync for Plan32 {}
 /// Marker for 128-bit floating point FFT
-pub type Plan128 = fftwl_plan;
+#[derive(Copy, Clone)]
+pub struct Plan128(fftwl_plan);
+impl From<fftwl_plan> for Plan128{
+    fn from(val: fftwl_plan) -> Self {
+        Plan128(val)
+    }
+}
+unsafe impl Send for Plan128 {}
+unsafe impl Sync for Plan128 {}
 
 /// Trait for the plan of Complex-to-Complex transformation
 pub trait C2CPlan: Sized {
@@ -104,7 +129,7 @@ pub trait C2CPlan: Sized {
     ) -> Result<Self>;
 
     /// Execute complex-to-complex transform
-    fn c2c(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Complex]) -> Result<()>;
+    fn c2c(&self, in_: &mut [Self::Complex], out: &mut [Self::Complex]) -> Result<()>;
 }
 
 /// Trait for the plan of Real-to-Complex transformation
@@ -131,7 +156,7 @@ pub trait R2CPlan: Sized {
     ) -> Result<Self>;
 
     /// Execute real-to-complex transform
-    fn r2c(&mut self, in_: &mut [Self::Real], out: &mut [Self::Complex]) -> Result<()>;
+    fn r2c(&self, in_: &mut [Self::Real], out: &mut [Self::Complex]) -> Result<()>;
 }
 
 /// Trait for the plan of Complex-to-Real transformation
@@ -158,7 +183,7 @@ pub trait C2RPlan: Sized {
     ) -> Result<Self>;
 
     /// Execute complex-to-real transform
-    fn c2r(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Real]) -> Result<()>;
+    fn c2r(&self, in_: &mut [Self::Complex], out: &mut [Self::Real]) -> Result<()>;
 }
 
 pub trait R2RPlan: Sized {
@@ -182,7 +207,7 @@ pub trait R2RPlan: Sized {
     ) -> Result<Self>;
 
     /// Execute complex-to-complex transform
-    fn r2r(&mut self, in_: &mut [Self::Real], out: &mut [Self::Real]) -> Result<()>;
+    fn r2r(&self, in_: &mut [Self::Real], out: &mut [Self::Real]) -> Result<()>;
 }
 
 macro_rules! impl_c2c {
@@ -197,13 +222,13 @@ macro_rules! impl_c2c {
                 flag: Flag,
             ) -> Result<Self> {
 
-                let plan = excall! { $plan(
+                let plan = <$Plan>::from(excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
                     in_.as_mut_ptr() as *mut _,
                     out.as_mut_ptr() as *mut _,
                     sign as i32, flag.bits())
-                }
+                })
                 .validate()?;
                 Ok(Self {
                     plan,
@@ -212,9 +237,9 @@ macro_rules! impl_c2c {
                     phantom: PhantomData,
                 })
             }
-            fn c2c(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Complex]) -> Result<()> {
+            fn c2c(&self, in_: &mut [Self::Complex], out: &mut [Self::Complex]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
+                unsafe { $exec(self.plan.0, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
                 Ok(())
             }
         }
@@ -236,13 +261,13 @@ macro_rules! impl_r2c {
                 out: &mut [Self::Complex],
                 flag: Flag,
             ) -> Result<Self> {
-                let plan = excall! { $plan(
+                let plan = <$Plan>::from(excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
                     in_.as_mut_ptr() as *mut _,
                     out.as_mut_ptr() as *mut _,
                     flag.bits())
-                }
+                })
                 .validate()?;
                 Ok(Self {
                     plan,
@@ -251,9 +276,15 @@ macro_rules! impl_r2c {
                     phantom: PhantomData,
                 })
             }
-            fn r2c(&mut self, in_: &mut [Self::Real], out: &mut [Self::Complex]) -> Result<()> {
+            fn r2c(&self, in_: &mut [Self::Real], out: &mut [Self::Complex]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
+                unsafe {
+                    $exec(
+                        self.plan.0,
+                        in_.as_mut_ptr() as *mut _,
+                        out.as_mut_ptr() as *mut _
+                    )
+                };
                 Ok(())
             }
         }
@@ -275,13 +306,13 @@ macro_rules! impl_c2r {
                 out: &mut [Self::Real],
                 flag: Flag,
             ) -> Result<Self> {
-                let plan = excall! { $plan(
+                let plan = <$Plan>::from(excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
                     in_.as_mut_ptr() as *mut _,
                     out.as_mut_ptr() as *mut _,
                     flag.bits())
-                }
+                })
                 .validate()?;
                 Ok(Self {
                     plan,
@@ -290,9 +321,11 @@ macro_rules! impl_c2r {
                     phantom: PhantomData,
                 })
             }
-            fn c2r(&mut self, in_: &mut [Self::Complex], out: &mut [Self::Real]) -> Result<()> {
+            fn c2r(&self, in_: &mut [Self::Complex], out: &mut [Self::Real]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
+                unsafe { $exec(self.plan.0, in_.as_mut_ptr() as *mut _, out
+                .as_mut_ptr() as
+                *mut _) };
                 Ok(())
             }
         }
@@ -314,13 +347,13 @@ macro_rules! impl_r2r {
                 kind: R2RKind,
                 flag: Flag,
             ) -> Result<Self> {
-                let plan = excall! { $plan(
+                let plan = <$Plan>::from(excall! { $plan(
                     shape.len() as i32,
                     shape.to_cint().as_mut_ptr() as *mut _,
                     in_.as_mut_ptr() as *mut _,
                     out.as_mut_ptr() as *mut _,
                     &kind as *const _, flag.bits())
-                }
+                })
                 .validate()?;
                 Ok(Self {
                     plan,
@@ -329,9 +362,11 @@ macro_rules! impl_r2r {
                     phantom: PhantomData,
                 })
             }
-            fn r2r(&mut self, in_: &mut [Self::Real], out: &mut [Self::Real]) -> Result<()> {
+            fn r2r(&self, in_: &mut [Self::Real], out: &mut [Self::Real]) -> Result<()> {
                 self.check(in_, out)?;
-                unsafe { $exec(self.plan, in_.as_mut_ptr() as *mut _, out.as_mut_ptr() as *mut _) };
+                unsafe { $exec(self.plan.0, in_.as_mut_ptr() as *mut _, out
+                .as_mut_ptr() as
+                *mut _) };
                 Ok(())
             }
         }
@@ -346,17 +381,17 @@ macro_rules! impl_plan_spec {
     ($Plan:ty; $destroy_plan:ident, $print_plan:ident) => {
         impl PlanSpec for $Plan {
             fn validate(self) -> Result<Self> {
-                if self.is_null() {
+                if self.0.is_null() {
                     Err(Error::InvalidPlanError {})
                 } else {
                     Ok(self)
                 }
             }
             fn destroy(self) {
-                excall! { $destroy_plan(self) }
+                excall! { $destroy_plan(self.0) }
             }
             fn print(self) {
-                excall! { $print_plan(self) }
+                excall! { $print_plan(self.0) }
             }
         }
     };

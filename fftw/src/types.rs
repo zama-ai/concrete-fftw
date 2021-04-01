@@ -37,6 +37,7 @@ bitflags! {
     /// Flags for creating plans and wisdom
     ///
     /// This will be the most important part for fast FFT.
+    ///
     /// You should see the [Words of Wisdom] in the original document
     ///
     /// [Words of Wisdom]: http://www.fftw.org/fftw3_doc/Words-of-Wisdom_002dSaving-Plans.html
