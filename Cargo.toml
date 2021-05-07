@@ -1,6 +1,8 @@
 [workspace]
 members = [
-  "fftw",
-  "fftw-sys",
-  "fftw-src",
+  "concrete-fftw",
+  "concrete-fftw-sys",
 ]
+
+[patch.crates-io]
+concrete-fftw-sys = {path = "concrete-fftw-sys"}
