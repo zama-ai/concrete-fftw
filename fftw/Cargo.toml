@@ -28,6 +28,14 @@ path = "../fftw-sys"
 version = "0.6.0"
 default-features = false
 
+[dev-dependencies]
+criterion = "0.3.4"
+
+[[bench]]
+name = "benchmark"
+path = "benches/benchmark.rs"
+harness = false
+
 [package.metadata.docs.rs]
 no-default-features = true
 features = ["system"]
