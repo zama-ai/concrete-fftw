@@ -6,3 +6,4 @@ members = [
 
 [patch.crates-io]
 concrete-fftw-sys = {path = "concrete-fftw-sys"}
+concrete-fftw = {path = "concrete-fftw"}
