@@ -46,32 +46,48 @@ fn main() {
     .expect("Failed to copy sources.");
 
     // ===================================================================================== Compile
-    let mut configure = Command::new(canonicalize(src_dir.join("configure")).unwrap());
+    let mut configure = Command::new(canonicalize(out_src_dir.join("configure")).unwrap());
     configure
         .arg("--with-pic")
         .arg("--enable-static")
+        .arg("--enable-avx")
+        .arg("--enable-avx2")
+        .arg("--enable-sse2")
+        .arg("--enable-generic-simd128")
+        .arg("--enable-generic-simd256")
         .arg("--disable-doc")
         .arg(format!("--prefix={}", out_dir.display()))
-        .current_dir(&src_dir);
+        .current_dir(&out_src_dir);
     run(&mut configure);
     run(Command::new("make")
         .arg(format!("-j{}", var("NUM_JOBS").unwrap()))
-        .current_dir(&src_dir));
-    run(Command::new("make").arg("install").current_dir(&src_dir));
+        .current_dir(&out_src_dir));
+    run(Command::new("make")
+        .arg("install")
+        .current_dir(&out_src_dir));
 
-    let mut configure = Command::new(canonicalize(src_dir.join("configure")).unwrap());
+    // run(Command::new("make distclean").current_dir(&out_src_dir));
+    let mut configure = Command::new(canonicalize(out_src_dir.join("configure")).unwrap());
     configure
         .arg("--with-pic")
         .arg("--enable-static")
         .arg("--enable-single")
+        .arg("--enable-avx")
+        .arg("--enable-avx2")
+        .arg("--enable-sse")
+        .arg("--enable-sse2")
+        .arg("--enable-generic-simd128")
+        .arg("--enable-generic-simd256")
         .arg("--disable-doc")
         .arg(format!("--prefix={}", out_dir.display()))
-        .current_dir(&src_dir);
+        .current_dir(&out_src_dir);
     run(&mut configure);
     run(Command::new("make")
         .arg(format!("-j{}", var("NUM_JOBS").unwrap()))
-        .current_dir(&src_dir));
-    run(Command::new("make").arg("install").current_dir(&src_dir));
+        .current_dir(&out_src_dir));
+    run(Command::new("make")
+        .arg("install")
+        .current_dir(&out_src_dir));
 
     // ============================================================================ Generate binding
     let bindings = bindgen::Builder::default()
