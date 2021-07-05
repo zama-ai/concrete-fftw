@@ -8,7 +8,7 @@ description = "Safe wrapper around FFTW"
 homepage = "https://crates.io/crates/concrete-fftw"
 repository = "https://github.com/zama-ai/concrete-fftw"
 readme = "README.md"
-keywords = ["fftw", "fft", "fully", "homomorphic", "encryption", "fhe", "cryptography"]
+keywords = ["fftw", "fft", "fully", "homomorphic", "fhe"]
 
 [features]
 serialize = ["num-complex/serde", "serde"]

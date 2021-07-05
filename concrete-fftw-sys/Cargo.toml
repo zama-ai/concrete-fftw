@@ -8,7 +8,7 @@ description = "Sources of FFTW and unsafe binding"
 homepage = "https://crates.io/crates/concrete-fftw-sys"
 repository = "https://github.com/zama-ai/concrete-fftw"
 readme = "README.md"
-keywords = ["fftw", "fft", "fully", "homomorphic", "encryption", "fhe", "cryptography"]
+keywords = ["fftw", "fft", "fully", "homomorphic", "fhe"]
 
 build = "build.rs"
 
