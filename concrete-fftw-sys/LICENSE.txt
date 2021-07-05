@@ -1,0 +1,2 @@
+'concrete-fftw-sys' is free software and distributed under [GNU General Public License version 2
+(GPLv2)](https://www.gnu.org/licenses/gpl-2.0.html) or (at your option) any later version.
