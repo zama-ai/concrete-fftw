@@ -12,7 +12,7 @@ or later.
 
 Intel MKL
 ---------
-When using `concrete-fftw` with the "mkl" feature flat, Intel Math Kernel Library (MKL) is used as a
+When using `concrete-fftw` with the "mkl" feature flag, Intel Math Kernel Library (MKL) is used as a
 backend. MKL is distributed under the
 [Intel Simplified Software License](https://software.intel.com/en-us/license/intel-simplified-software-license).
 See also [License FAQ](https://software.intel.com/en-us/mkl/license-faq).
