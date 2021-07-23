@@ -8,7 +8,21 @@ on:
   pull_request: {}
 
 jobs:
-  macos:
+  macos_build:
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ["", "serialize"]
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --features=${{ matrix.feature }} --no-default-features
+
+  macos_test:
     runs-on: macos-10.15
     strategy:
       fail-fast: false
@@ -20,9 +34,23 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --manifest-path=concrete-fftw/Cargo.toml --features=${{ matrix.feature }} --no-default-features
+        args: --features=${{ matrix.feature }} --no-default-features
 
-  linux:
+
+  linux_build:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ["", "mkl", "serialize"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --features=${{ matrix.feature }} --no-default-features
+
+  linux_test:
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
@@ -33,7 +61,7 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --manifest-path=concrete-fftw/Cargo.toml --features=${{ matrix.feature }} --no-default-features
+        args: --features=${{ matrix.feature }} --no-default-features
 
   check-format:
     runs-on: ubuntu-18.04
