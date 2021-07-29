@@ -1,6 +1,6 @@
 [package]
 name = "concrete-fftw-sys"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 authors = ["D. Ligier", "J.B. Orfila", "A. Péré", "S. Tap", "Zama team"]
 license = "GPL-2.0-or-later"
