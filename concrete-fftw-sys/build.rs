@@ -3,8 +3,6 @@ use std::fs::canonicalize;
 use std::path::PathBuf;
 use std::process::Command;
 
-use bindgen::EnumVariation;
-
 fn run(command: &mut Command) {
     println!("Running: {:?}", command);
     match command.status() {
@@ -88,46 +86,6 @@ fn main() {
     run(Command::new("make")
         .arg("install")
         .current_dir(&out_src_dir));
-
-    // ============================================================================ Generate binding
-    let bindings = bindgen::Builder::default()
-        .header(
-            out_dir
-                .join("include/fftw3.h")
-                .into_os_string()
-                .into_string()
-                .unwrap(),
-        )
-        .use_core()
-        .derive_default(true)
-        .derive_eq(true)
-        .derive_hash(true)
-        .derive_ord(true)
-        .whitelist_type("^fftw.*")
-        .whitelist_var("^FFTW.*")
-        .whitelist_function("^fftw.*")
-        .blacklist_type("fftw.*_complex")
-        .blacklist_type("FILE")
-        .blacklist_type("_.*")
-        .blacklist_type("fftw_.*_complex")
-        .blacklist_function("fftw.*wisdom_to_file")
-        .blacklist_function("fftw.*wisdom_from_file")
-        .blacklist_function("fftw.*fprint_plan")
-        .blacklist_function("fftwl_.*")
-        .default_enum_style(EnumVariation::Rust {
-            non_exhaustive: false,
-        })
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks));
-    let bindings = if cfg!(macos) {
-        bindings.blacklist_type("__darwin_.*")
-    } else {
-        bindings
-    };
-    bindings
-        .generate()
-        .expect("Unable to generate bindings")
-        .write_to_file(out_dir.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
 
     // ================================================================================== Emit flags
     println!("cargo:rustc-link-search={}", out_dir.join("lib").display());
