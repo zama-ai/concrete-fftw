@@ -26,4 +26,4 @@ type __darwin_off_t = std::os::raw::c_longlong;
 pub type fftw_complex = Complex<f64>;
 pub type fftwf_complex = Complex<f32>;
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+include!("fftw.rs");
