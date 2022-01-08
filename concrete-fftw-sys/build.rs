@@ -1,5 +1,5 @@
+use path_absolutize::Absolutize;
 use std::env::var;
-use std::fs::canonicalize;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -19,9 +19,6 @@ fn run(command: &mut Command) {
 
 fn main() {
     // ========================================================================= Check configuration
-    if cfg!(windows) {
-        panic!("Windows platform is not supported.")
-    }
     if cfg!(macos) && cfg!(feature = "mkl") {
         panic!("Mkl is not supported in the macos platform.")
     }
@@ -44,48 +41,65 @@ fn main() {
     .expect("Failed to copy sources.");
 
     // ===================================================================================== Compile
-    let mut configure = Command::new(canonicalize(out_src_dir.join("configure")).unwrap());
-    configure
-        .arg("--with-pic")
-        .arg("--enable-static")
-        .arg("--enable-avx")
-        .arg("--enable-avx2")
-        .arg("--enable-sse2")
-        .arg("--enable-generic-simd128")
-        .arg("--enable-generic-simd256")
-        .arg("--disable-doc")
-        .arg(format!("--prefix={}", out_dir.display()))
-        .current_dir(&out_src_dir);
-    run(&mut configure);
-    run(Command::new("make")
-        .arg(format!("-j{}", var("NUM_JOBS").unwrap()))
-        .current_dir(&out_src_dir));
-    run(Command::new("make")
-        .arg("install")
-        .current_dir(&out_src_dir));
 
-    // run(Command::new("make distclean").current_dir(&out_src_dir));
-    let mut configure = Command::new(canonicalize(out_src_dir.join("configure")).unwrap());
-    configure
-        .arg("--with-pic")
-        .arg("--enable-static")
-        .arg("--enable-single")
-        .arg("--enable-avx")
-        .arg("--enable-avx2")
-        .arg("--enable-sse")
-        .arg("--enable-sse2")
-        .arg("--enable-generic-simd128")
-        .arg("--enable-generic-simd256")
-        .arg("--disable-doc")
-        .arg(format!("--prefix={}", out_dir.display()))
-        .current_dir(&out_src_dir);
-    run(&mut configure);
-    run(Command::new("make")
-        .arg(format!("-j{}", var("NUM_JOBS").unwrap()))
-        .current_dir(&out_src_dir));
-    run(Command::new("make")
+    // build standard precision
+    let build_dir = out_src_dir.absolutize().unwrap().join("build");
+    let _ = std::fs::remove_dir_all(&build_dir);
+    std::fs::create_dir(&build_dir).unwrap();
+    let mut cmake = Command::new("cmake");
+    cmake
+        .arg("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+        .arg("-DBUILD_SHARED_LIBS=OFF")
+        .arg("-DBUILD_TESTS=OFF")
+        .arg("-DENABLE_SSE=ON")
+        .arg("-DENABLE_SSE2=ON")
+        .arg("-DENABLE_AVX=ON")
+        .arg("-DENABLE_AVX2=ON")
+        .arg(format!("-DCMAKE_INSTALL_PREFIX={}", out_dir.display()))
+        .arg("-G")
+        .arg("Ninja")
+        .arg("..")
+        .current_dir(&build_dir);
+    run(&mut cmake);
+    run(Command::new("cmake")
+        .arg("--build")
+        .arg(".")
+        .arg("--parallel")
+        .arg(var("NUM_JOBS").unwrap())
+        .current_dir(&build_dir));
+    run(Command::new("ninja")
         .arg("install")
-        .current_dir(&out_src_dir));
+        .current_dir(&build_dir));
+
+    // build single precision
+    let build_dir = out_src_dir.absolutize().unwrap().join("buildf");
+    let _ = std::fs::remove_dir_all(&build_dir);
+    std::fs::create_dir(&build_dir).unwrap();
+    let mut cmake = Command::new("cmake");
+    cmake
+        .arg("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+        .arg("-DBUILD_SHARED_LIBS=OFF")
+        .arg("-DBUILD_TESTS=OFF")
+        .arg("-DENABLE_FLOAT=ON")
+        .arg("-DENABLE_SSE=ON")
+        .arg("-DENABLE_SSE2=ON")
+        .arg("-DENABLE_AVX=ON")
+        .arg("-DENABLE_AVX2=ON")
+        .arg(format!("-DCMAKE_INSTALL_PREFIX={}", out_dir.display()))
+        .arg("-G")
+        .arg("Ninja")
+        .arg("..")
+        .current_dir(&build_dir);
+    run(&mut cmake);
+    run(Command::new("cmake")
+        .arg("--build")
+        .arg(".")
+        .arg("--parallel")
+        .arg(var("NUM_JOBS").unwrap())
+        .current_dir(&build_dir));
+    run(Command::new("ninja")
+        .arg("install")
+        .current_dir(&build_dir));
 
     // ================================================================================== Emit flags
     println!("cargo:rustc-link-search={}", out_dir.join("lib").display());

@@ -14,6 +14,7 @@ build = "build.rs"
 
 [build-dependencies]
 fs_extra = "~1.2.0"
+path-absolutize = "~3.0.11"
 
 [features]
 mkl = ["intel-mkl-src"]
