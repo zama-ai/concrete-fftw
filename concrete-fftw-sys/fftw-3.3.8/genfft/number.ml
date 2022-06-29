@@ -136,13 +136,15 @@ let primitive_root_of_unity n =
     in root_iter (float_to_num (cos (twopi /. (float n))),
 		  float_to_num (sin (twopi /. (float n)))) 
 
-let cexp n i =
+let cexp_canonical n i =
     if ((i mod n) == 0) then
       (one,zero)
     else
       let (n2,i2) = Util.lowest_terms n i
       in let (c,s) = ipow_cnum (primitive_root_of_unity n2) i2
       in (makeNum c, makeNum s)
+
+let cexp n i = cexp_canonical (2*n) (2*i+1)
 
 let to_konst (N n) =
   let f = float_of_num n in
