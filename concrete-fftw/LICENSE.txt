@@ -1,22 +1,10 @@
 License of concrete-fftw
 ========================
 
-`concrete-fftw` is distributed under dual license based on which backends are linked:
-
-FFTW
-------
-When using `concrete-fftw` without the "mkl" feature flag, FFTW is used as a backend. FFTW is free
-software and distributed under [GNU General Public License version 2 (GPLv2)](https://www.gnu.org/licenses/gpl-2.0.html)
-or (at your option) any later version. In this case, `concrete-fftw` is also distributed under GPLv2
-or later.
-
-Intel MKL
----------
-When using `concrete-fftw` with the "mkl" feature flag, Intel Math Kernel Library (MKL) is used as a
-backend. MKL is distributed under the
-[Intel Simplified Software License](https://software.intel.com/en-us/license/intel-simplified-software-license).
-See also [License FAQ](https://software.intel.com/en-us/mkl/license-faq).
-In this case, `concrete-fftw` is distributed under the following MIT-license:
+When using `concrete-fftw`, FFTW is used as a backend. FFTW is free software and distributed under
+[GNU General Public License version 2 (GPLv2)](https://www.gnu.org/licenses/gpl-2.0.html) or (at
+your option) any later version. In this case, `concrete-fftw` is also distributed under GPLv2 or
+later.
 
     Copyright for portions of project concrete-fftw are held by Toshiki Teramura 2019 as part
     of project rust-fftw. All other copyright for project concrete-fftw are held by Zama 2021.

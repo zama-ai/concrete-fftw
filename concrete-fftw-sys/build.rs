@@ -73,9 +73,6 @@ fn main() {
     if cfg!(windows) {
         panic!("Windows platform is not supported.")
     }
-    if cfg!(macos) && cfg!(feature = "mkl") {
-        panic!("Mkl is not supported in the macos platform.")
-    }
 
     let target_arch: TargetArch = std::env::var("CARGO_CFG_TARGET_ARCH")
         .expect("CARGO_CFG_TARGET_ARCH is not set")
