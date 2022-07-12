@@ -8,60 +8,28 @@ on:
   pull_request: {}
 
 jobs:
-  macos_build:
-    runs-on: macos-10.15
+  build_and_test:
     strategy:
       fail-fast: false
       matrix:
         feature: ["", "serialize"]
+        runner: [["self-hosted", "m1mac"], "macos-10.15", "ubuntu-18.04"]
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - uses: actions-rs/cargo@v1
         with:
           command: build
           args: --features=${{ matrix.feature }} --no-default-features
-
-  macos_test:
-    runs-on: macos-10.15
-    strategy:
-      fail-fast: false
-      matrix:
-        feature: ["", "serialize"]
-
-    steps:
-    - uses: actions/checkout@v1
-    - uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --features=${{ matrix.feature }} --no-default-features
-
-
-  linux_build:
-    runs-on: ubuntu-18.04
-    strategy:
-      fail-fast: false
-      matrix:
-        feature: ["", "serialize"]
-    steps:
-      - uses: actions/checkout@v1
       - uses: actions-rs/cargo@v1
         with:
-          command: build
+          command: test
           args: --features=${{ matrix.feature }} --no-default-features
-
-  linux_test:
-    runs-on: ubuntu-18.04
-    strategy:
-      fail-fast: false
-      matrix:
-        feature: ["", "serialize"]
-    steps:
-    - uses: actions/checkout@v1
-    - uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --features=${{ matrix.feature }} --no-default-features
 
   check-format:
     runs-on: ubuntu-18.04
