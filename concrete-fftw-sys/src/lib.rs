@@ -7,16 +7,11 @@
 use f128::f128;
 use num_complex::Complex;
 
-#[cfg(not(feature = "mkl"))]
 #[link(name = "fftw3")]
 extern "C" {}
 
-#[cfg(not(feature = "mkl"))]
 #[link(name = "fftw3f")]
 extern "C" {}
-
-#[cfg(feature = "mkl")]
-extern crate intel_mkl_src as ffi;
 
 #[cfg(target_os = "macos")]
 type __darwin_size_t = std::os::raw::c_ulong;

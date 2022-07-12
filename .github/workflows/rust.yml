@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        feature: ["", "mkl", "serialize"]
+        feature: ["", "serialize"]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/cargo@v1
@@ -55,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        feature: ["", "mkl", "serialize"]
+        feature: ["", "serialize"]
     steps:
     - uses: actions/checkout@v1
     - uses: actions-rs/cargo@v1
