@@ -12,7 +12,6 @@ keywords = ["fftw", "fft", "fully", "homomorphic", "fhe"]
 
 [features]
 serialize = ["num-complex/serde", "serde"]
-mkl = ["concrete-fftw-sys/mkl"]
 
 [dependencies]
 concrete-fftw-sys = "=0.1.3"

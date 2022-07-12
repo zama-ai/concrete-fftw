@@ -5,36 +5,7 @@ License of concrete-fftw
 
 FFTW
 ------
-When using `concrete-fftw` without the "mkl" feature flag, FFTW is used as a backend. FFTW is free
-software and distributed under [GNU General Public License version 2 (GPLv2)](https://www.gnu.org/licenses/gpl-2.0.html)
-or (at your option) any later version. In this case, `concrete-fftw` is also distributed under GPLv2
-or later.
-
-Intel MKL
----------
-When using `concrete-fftw` with the "mkl" feature flag, Intel Math Kernel Library (MKL) is used as a
-backend. MKL is distributed under the
-[Intel Simplified Software License](https://software.intel.com/en-us/license/intel-simplified-software-license).
-See also [License FAQ](https://software.intel.com/en-us/mkl/license-faq).
-In this case, `concrete-fftw` is distributed under the following MIT-license:
-
-    Copyright for portions of project concrete-fftw are held by Toshiki Teramura 2019 as part
-    of project rust-fftw. All other copyright for project concrete-fftw are held by Zama 2021.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+When using `concrete-fftw`, FFTW is used as a backend. FFTW is free software and distributed under
+[GNU General Public License version 2 (GPLv2)](https://www.gnu.org/licenses/gpl-2.0.html) or (at
+your option) any later version. In this case, `concrete-fftw` is also distributed under GPLv2 or
+later.
