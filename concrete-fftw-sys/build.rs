@@ -58,8 +58,9 @@ fn set_common_configure_arguments(configure: &mut Command, target_arch: &TargetA
                 .arg("--enable-avx")
                 .arg("--enable-avx2")
                 .arg("--enable-sse2")
-                .arg("--enable-generic-simd128")
-                .arg("--enable-generic-simd256");
+                .arg("--enable-generic-simd128");
+            // TODO: revert once fixed in fftw
+            // .arg("--enable-generic-simd256");
 
             if cfg!(macos) {
                 configure.arg("CFLAGS=-arch x86_64");
